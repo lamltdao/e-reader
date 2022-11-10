@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Redirect, Switch, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
@@ -16,27 +16,23 @@ export const App = () => {
 const AuthenticatedApp = () => {
   const { isLogged } = useAuthentication();
 
-  if (!isLogged) return <Redirect to="/login" />;
+  if (!isLogged) {
+    return <Navigate to="/login" />
+  } 
 
   return (
-    <Switch>
-      <Route path="/" exact>
-        <Home />
-      </Route>
-      <Route path="*">Error 404 - Page not found!</Route>
-    </Switch>
+    <Routes>
+      <Route path="/" element={<Home />} />
+    </Routes>
   );
 };
 
 const UnauthenticatedApp = () => {
   return (
-    <Switch>
-      <Route exact path={["/", "/login"]}>
-        <Login />
-      </Route>
-      <Route exact path="/register">
-        <Register />
-      </Route>
-    </Switch>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Routes>
   );
 };

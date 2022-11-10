@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useHistory, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuthentication } from "../../context/authentication";
 
 export const Register = () => {
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const { doRegister } = useAuthentication();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formValues, setFormValues] = useState({
@@ -19,7 +19,7 @@ export const Register = () => {
 
       await doRegister(email, password);
 
-      push("/");
+      navigate("/");
     } catch (e) {
       setIsSubmitting(false);
     }

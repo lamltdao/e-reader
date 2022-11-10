@@ -1,15 +1,15 @@
 import React from "react";
 import { useAuthentication } from "../../context/authentication";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const { doLogout, user } = useAuthentication();
 
   const logout = async () => {
     await doLogout();
 
-    push("/login");
+    navigate("/login");
   };
 
   return (

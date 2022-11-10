@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useContext } from "react";
 import { useFirebase } from "./firebase";
-
+import { User } from 'firebase/auth'
 type doLoginType = (email: string, password: string) => Promise<void>;
 type doRegisterType = (email: string, password: string) => Promise<void>;
 type doLogoutType = () => Promise<void>;
@@ -8,7 +8,7 @@ type doLogoutType = () => Promise<void>;
 type AuthenticationContextState = {
   isLogged: boolean;
   isFetchingUser: boolean;
-  user: firebase.User | null;
+  user: User | null;
 
   doLogin: doLoginType;
   doRegister: doRegisterType;

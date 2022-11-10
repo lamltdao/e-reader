@@ -1,27 +1,33 @@
 import React, { createContext, useContext, useState } from "react";
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { CollectionReference, DocumentData, getFirestore, collection, setDoc, doc } from "firebase/firestore";
+import { User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
+// const firebaseConfig = {
+//   apiKey: process.env.REACT_APP_API_KEY,
+//   authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+//   projectId: process.env.REACT_APP_PROJECT_ID,
+//   storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+//   messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+//   appId: process.env.REACT_APP_APP_ID,
+// };
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  databaseURL: process.env.REACT_APP_DATABASE_URL,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_APP_ID,
-  measurementId: process.env.REACT_APP_MEASUREMENT_ID,
+  apiKey: "AIzaSyBALv9vwumdSf7D5sToRCR2kosTndLtwSk",
+  authDomain: "e-reader-b3466.firebaseapp.com",
+  projectId: "e-reader-b3466",
+  storageBucket: "e-reader-b3466.appspot.com",
+  messagingSenderId: "834014262568",
+  appId: "1:834014262568:web:cf8414e99d9a3ffe888c1d"
 };
 
-firebase.initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 
 type TrackingProviderProps = {
   children: React.ReactNode;
 };
 
-type CollectionType = firebase.firestore.CollectionReference<
-  firebase.firestore.DocumentData
+type CollectionType = CollectionReference<
+  DocumentData
 >;
 
 type createUserOnFirebaseType = (
@@ -35,7 +41,7 @@ type doUserLoginOnFirebaseType = (
 type logoutUserFromFirebaseType = () => Promise<void>;
 
 type FirebaseState = {
-  user: firebase.User | null;
+  user: User | null;
   isFetchingUser: boolean;
 
   createUserOnFirebase: createUserOnFirebaseType;
@@ -46,11 +52,11 @@ type FirebaseState = {
 const FirebaseContext = createContext<FirebaseState | undefined>(undefined);
 
 function FirebaseProvider({ children }: TrackingProviderProps) {
-  const firestore = firebase.firestore();
-  const auth = firebase.auth();
+  const firestore = getFirestore();
+  const auth = getAuth();
 
   // AUTHENTICATION
-  const [user, setUser] = useState<firebase.User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isFetchingUser, setIsFetchingUser] = useState(true);
 
   auth.onAuthStateChanged((user) => {
@@ -66,7 +72,8 @@ function FirebaseProvider({ children }: TrackingProviderProps) {
   const createUserOnFirebase: createUserOnFirebaseType = (email, password) =>
     new Promise(async (resolve, reject) => {
       try {
-        const firebaseUser = await auth.createUserWithEmailAndPassword(
+        const firebaseUser = await createUserWithEmailAndPassword(
+          auth,
           email,
           password
         );
@@ -76,9 +83,9 @@ function FirebaseProvider({ children }: TrackingProviderProps) {
           return;
         }
 
-        await usersCollection.doc(firebaseUser.user.uid).set({
+        await setDoc(doc(usersCollection), {
           email: firebaseUser.user.email,
-        });
+        })
 
         resolve();
       } catch (e) {
@@ -89,7 +96,7 @@ function FirebaseProvider({ children }: TrackingProviderProps) {
   const doUserLoginOnFirebase: doUserLoginOnFirebaseType = (email, password) =>
     new Promise(async (resolve, reject) => {
       try {
-        await auth.signInWithEmailAndPassword(email, password);
+        await signInWithEmailAndPassword(auth, email, password);
 
         resolve();
       } catch (e) {
@@ -100,7 +107,7 @@ function FirebaseProvider({ children }: TrackingProviderProps) {
   const logoutUserFromFirebase = async () => await auth.signOut();
 
   // FIRESTORE
-  const usersCollection = firestore.collection("users");
+  const usersCollection = collection(firestore, "users");
 
   return (
     <FirebaseContext.Provider

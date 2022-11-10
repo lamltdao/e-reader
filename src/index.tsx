@@ -1,13 +1,14 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { App } from "./app";
 import { RootProvider } from "./rootProviders";
+import { createRoot } from 'react-dom/client';
 
-ReactDOM.render(
+
+const root = createRoot(document.getElementById("root") as Element)
+root.render(
   <React.StrictMode>
     <RootProvider>
       <App />
     </RootProvider>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
