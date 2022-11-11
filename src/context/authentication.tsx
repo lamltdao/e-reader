@@ -24,6 +24,8 @@ type AuthenticationProviderProps = {
 };
 
 const AuthenticationProvider = ({ children }: AuthenticationProviderProps) => {
+  console.log("Authen provider");
+  
   const {
     createUserOnFirebase,
     doUserLoginOnFirebase,

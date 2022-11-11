@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useBooks } from "../../context/books";
 import MainLayout from "../../layout/mainLayout";
 
-export const Home = () => {
+export const Home = () => {  
   const { books } = useBooks();
   return (
     <MainLayout>

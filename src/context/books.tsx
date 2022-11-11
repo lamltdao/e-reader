@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { collection, doc, getDoc, getDocs, getFirestore, query } from 'firebase/firestore'
 import { useFirebase } from "./firebase";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage'
+
 type Book = {
     id: string;
     name: string;
@@ -28,8 +29,7 @@ type BooksProviderProps = {
 const BooksProvider = ({ children }: BooksProviderProps) => {
     const [books, setBooks] = useState<(Book & OwnedBook)[]>([])
     const { user } = useFirebase()
-    const booksCollection = collection(getFirestore(), "books")
-    useEffect(() => {
+    useEffect(() => {        
         if (user) {
             const ownedBooksCollection = collection(getFirestore(), "users", user.uid, "owned_books");
             const newBooks: (Book & OwnedBook)[] = []
@@ -47,7 +47,7 @@ const BooksProvider = ({ children }: BooksProviderProps) => {
                         }
                         const bookUrlRef = ref(getStorage(), `books/${document.id}.pdf`);
                         book.url = await getDownloadURL(bookUrlRef);
-                        
+                        const booksCollection = collection(getFirestore(), "books")
                         const d = doc(booksCollection, document.id)
                         const bookInfo = await getDoc(d)
                         const { name, length } = bookInfo.data() as {
@@ -63,7 +63,7 @@ const BooksProvider = ({ children }: BooksProviderProps) => {
                 })
             })
         }
-    }, [])
+    }, [user])
     const value = {
         books,
     }
@@ -91,8 +91,24 @@ const useBooks = () => {
 const useBook = (bookId: string | undefined) => {
     const { user } = useFirebase()
     const [book, setBook] = useState<Book & OwnedBook | null>(null)
-    const booksCollection = collection(getFirestore(), "books")
+
+    const updateReadStatus = (pageIdx: number) => {
+        setBook((prev) => {
+            if (prev) {
+                const prevReadStatus = prev?.readStatus
+                prevReadStatus[pageIdx] = true
+                return {
+                    ...prev,
+                    readStatus: prevReadStatus
+                }
+            }
+            return prev
+        })
+        // update to firestore
+        console.log(book?.readStatus);
+    }
     useEffect(() => {
+        const booksCollection = collection(getFirestore(), "books")
         bookId && getDoc(doc(booksCollection, bookId))
             .then(bookDocument => {
                 if (bookDocument.exists()) {
@@ -116,8 +132,8 @@ const useBook = (bookId: string | undefined) => {
                     }
                 }
             })
-    })
-    return book
+    }, [bookId, user?.uid])
+    return { book, updateReadStatus }
 }
 
 export { BooksProvider, useBooks, useBook };

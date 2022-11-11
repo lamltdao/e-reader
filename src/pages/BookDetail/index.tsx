@@ -2,48 +2,54 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { useBook } from '../../context/books';
 import MainLayout from '../../layout/mainLayout';
-import { Document, Page } from 'react-pdf';
+import { Worker, Viewer, PageChangeEvent } from '@react-pdf-viewer/core'
 
-// const PdfReader = () => {
-//     const [numPages, setNumPages] = useState(null);
-//     const [pageNumber, setPageNumber] = useState(1);
 
-//     function onDocumentLoadSuccess(pdf: ) {
-//         const { numPages } = pdf
-//         setNumPages(numPages);
-//     }
+type PdfReaderProps = {
+    url: string;
+    updateReadStatus: (n: number) => void;
+}
+const PdfReader = ({url, updateReadStatus }: PdfReaderProps) => {
+    const handlePageChange = (e: PageChangeEvent) => {
+        updateReadStatus(e.currentPage)
+    }
+    return (
+        <div style={{
+            width: "50%",
+            height: 300
+        }}>
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.0.279/build/pdf.worker.min.js">
 
-//     return (
-//         <div>
-//         <Document file="somefile.pdf" onLoadSuccess={onDocumentLoadSuccess}>
-//             <Page pageNumber={pageNumber} />
-//         </Document>
-//         <p>
-//             Page {pageNumber} of {numPages}
-//         </p>
-//         </div>
-//     );
-// }
+                <Viewer
+                    theme='dark'
+                    fileUrl={url}
+                    onPageChange={handlePageChange}
+                    />
+            </Worker>
+        </div>
+    );
+}
 
-const BookDetail = () => {
+const BookDetail = () => {    
     const { bookId } = useParams()
-    const currentBook = useBook(bookId)
-    const progress = currentBook ? Math.round(currentBook.readStatus.reduce<number>((acc: number, cur: boolean) => {
+    const { book, updateReadStatus } = useBook(bookId)
+    const progress = book ? Math.round(book.readStatus.reduce<number>((acc: number, cur: boolean) => {
         if (cur) {
             return acc+1
         }
         return acc
-    }, 0) / currentBook?.length * 100) : 0
+    }, 0) / book?.length * 100) : 0
     return (
         <MainLayout>
             {
-                currentBook
+                book
                 ? (
                     <div>
-                        <h2>Book Id: {currentBook.id}</h2>
-                        <h2>Book Name: {currentBook.name}</h2>
-                        <h2>Book Length: {currentBook.length}</h2>
+                        <h2>Book Id: {book.id}</h2>
+                        <h2>Book Name: {book.name}</h2>
+                        <h2>Book Length: {book.length}</h2>
                         <h2>Progress: {progress}%</h2>
+                        <PdfReader url={book.url} updateReadStatus={updateReadStatus} />
                     </div>
                 )
                 : (
