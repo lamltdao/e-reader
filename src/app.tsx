@@ -1,9 +1,9 @@
-import React, { useState } from "react";
 import { Navigate, Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { useAuthentication } from "./context/authentication";
+import BookDetail from "./pages/BookDetail";
 
 export const App = () => {
   const { isFetchingUser, isLogged } = useAuthentication();
@@ -23,6 +23,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/books/:bookId" element={<BookDetail />} />
     </Routes>
   );
 };

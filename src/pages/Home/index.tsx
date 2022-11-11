@@ -1,23 +1,36 @@
 import React from "react";
-import { useAuthentication } from "../../context/authentication";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useBooks } from "../../context/books";
+import MainLayout from "../../layout/mainLayout";
 
 export const Home = () => {
-  const navigate = useNavigate();
-  const { doLogout, user } = useAuthentication();
-
-  const logout = async () => {
-    await doLogout();
-
-    navigate("/login");
-  };
-
+  const { books } = useBooks();
   return (
-    <>
-      <h1>Welcome to home page {user?.email} :)</h1>
-      <button onClick={logout} type="button">
-        Logout
-      </button>
-    </>
+    <MainLayout>
+      <div>
+        <h1>Your books</h1>
+      </div>
+      <div>
+        {
+          books.map((book) => {
+            const numPageRead = book.readStatus.reduce<number>((prev: number, cur: boolean) => {
+              if (cur) {
+                return prev+1;
+              }
+              return prev;
+            }, 0)
+            const progress = Math.round(numPageRead / book.length * 100)
+            return (
+              <div key={book.id}>
+                <Link to={`/books/${book.id}`}>
+                  <h5>Name: {book.name}</h5>
+                  <h5>Progress: {progress}%</h5>
+                </Link>
+              </div>
+            )
+          })
+        }
+      </div>
+    </MainLayout>
   );
 };

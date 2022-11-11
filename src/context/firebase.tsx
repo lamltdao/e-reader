@@ -17,7 +17,7 @@ const firebaseConfig = {
   projectId: "e-reader-b3466",
   storageBucket: "e-reader-b3466.appspot.com",
   messagingSenderId: "834014262568",
-  appId: "1:834014262568:web:cf8414e99d9a3ffe888c1d"
+  appId: "1:834014262568:web:cf8414e99d9a3ffe888c1d",
 };
 
 initializeApp(firebaseConfig);
@@ -83,7 +83,7 @@ function FirebaseProvider({ children }: TrackingProviderProps) {
           return;
         }
 
-        await setDoc(doc(usersCollection), {
+        await setDoc(doc(usersCollection, firebaseUser.user.uid), {
           email: firebaseUser.user.email,
         })
 
