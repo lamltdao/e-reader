@@ -6,26 +6,26 @@ import {
     NavBtn,
 } from './NavbarElements';
 import Logout from '../logout'
+import { Grid, Typography } from '@mui/material';
 
 const Navbar = () => {
     return (
-        <Nav>
-            <Bars />
-            <NavMenu>
-                <NavLink to='/'>
-                    Your books
-                </NavLink>
-                <NavLink to='/explore'>
-                    Explore
-                </NavLink>
-                <NavLink to='/profile'>
-                    Profile
-                </NavLink>
-            </NavMenu>
-            <NavBtn>
-                <Logout />
-            </NavBtn>
-        </Nav>
+        <Grid>
+            <Nav>
+                <Bars />
+                <NavMenu>
+                    <NavLink to='/'>
+                        <Typography variant='h5'>Your books</Typography>
+                    </NavLink>
+                    <NavLink to='/explore'>
+                        <Typography variant='h5'>Explore</Typography>
+                    </NavLink>
+                </NavMenu>
+                <NavBtn>
+                    <Logout />
+                </NavBtn>
+            </Nav>
+        </Grid>
     );
 };
 

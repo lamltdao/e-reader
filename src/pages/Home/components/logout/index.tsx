@@ -1,3 +1,4 @@
+import { Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuthentication } from "../../../../context/authentication";
 
@@ -13,9 +14,9 @@ const LogoutButton = () => {
 
     return (
         <div>
-            <button onClick={logout} type="button">
-                Logout
-            </button>
+            <Button onClick={logout} type="button" variant="outlined">
+                <Typography>Logout</Typography>
+            </Button>
         </div>
     );
 }

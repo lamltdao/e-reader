@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { useBook } from '../../context/books';
 import MainLayout from '../../layout/mainLayout';
-import { Worker, Viewer, PageChangeEvent } from '@react-pdf-viewer/core'
+import { Worker, Viewer, PageChangeEvent, ScrollMode } from '@react-pdf-viewer/core'
+import { Grid, Typography } from '@mui/material';
 
 
 type PdfReaderProps = {
@@ -15,8 +15,8 @@ const PdfReader = ({url, updateReadStatus }: PdfReaderProps) => {
     }
     return (
         <div style={{
-            width: "50%",
-            height: 300
+            width: "70%",
+            height: 400,
         }}>
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.0.279/build/pdf.worker.min.js">
 
@@ -24,6 +24,7 @@ const PdfReader = ({url, updateReadStatus }: PdfReaderProps) => {
                     theme='dark'
                     fileUrl={url}
                     onPageChange={handlePageChange}
+                    scrollMode={ScrollMode.Vertical}
                     />
             </Worker>
         </div>
@@ -33,29 +34,36 @@ const PdfReader = ({url, updateReadStatus }: PdfReaderProps) => {
 const BookDetail = () => {    
     const { bookId } = useParams()
     const { book, updateReadStatus } = useBook(bookId)
-    const progress = book ? Math.round(book.readStatus.reduce<number>((acc: number, cur: boolean) => {
+    const percentRead = book ? book.readStatus.reduce<number>((acc: number, cur: boolean) => {
         if (cur) {
             return acc+1
         }
         return acc
-    }, 0) / book?.length * 100) : 0
+    }, 0) / book?.length * 100 : 0
+    const progress = Math.round(percentRead)
     return (
         <MainLayout>
             {
                 book
                 ? (
-                    <div>
-                        <h2>Book Id: {book.id}</h2>
-                        <h2>Book Name: {book.name}</h2>
-                        <h2>Book Length: {book.length}</h2>
-                        <h2>Progress: {progress}%</h2>
-                        <PdfReader url={book.url} updateReadStatus={updateReadStatus} />
-                    </div>
+                    <Grid
+                        container
+                        flexDirection="column"
+                        justifyContent="center"
+                    >
+                        <Typography variant='h6'>Name: {book.name}</Typography>
+                        <Typography variant='h6'>Authors: {book.authors.join(', ')}</Typography>
+                        <Typography variant='h6'>Progress: {progress}%</Typography>
+                        <Typography variant='h6'>Price: {book.currentPrice}</Typography>
+                        <Grid container alignItems="center" justifyContent="center">
+                            <PdfReader url={book.url} updateReadStatus={updateReadStatus} />
+                        </Grid>
+                    </Grid>
                 )
                 : (
-                    <div>
-                        <h2>No book</h2>
-                    </div>
+                    <Grid>
+                        <Typography>No book</Typography>
+                    </Grid>
                 )
             }
         </MainLayout>

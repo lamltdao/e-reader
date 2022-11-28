@@ -1,3 +1,4 @@
+import { Button, Grid, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthentication } from "../../context/authentication";
@@ -33,43 +34,65 @@ export const Register = () => {
   };
 
   return (
-    <form>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            required
-            id="email"
-            name="email"
-            value={formValues.email}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            required
-            id="password"
-            name="password"
-            value={formValues.password}
-            onChange={handleChange}
-          />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "fit-content",
-          }}
-        >
-          <button disabled={isSubmitting} onClick={onSubmit}>
-            {isSubmitting ? "registering..." : "register"}
-          </button>
-          <Link to="/login">I already have an account</Link>
-        </div>
-      </div>
-    </form>
+    <Grid
+    container
+    justifyContent="center"
+    alignItems="center"
+    flexDirection="column"
+    >
+      <Grid>
+        <Typography variant="h2">Sign up</Typography>
+      </Grid>
+      <Grid>
+        <form>
+            <Grid
+              container
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Grid>
+                <Typography>Email</Typography>
+                <input
+                  type="email"
+                  required
+                  id="email"
+                  name="email"
+                  value={formValues.email}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <br />
+              <Grid>
+                <Typography>Password</Typography>
+                <input
+                  type="password"
+                  required
+                  id="password"
+                  name="password"
+                  value={formValues.password}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <br />
+              <Grid
+                container
+                flexDirection="column"
+                alignItems="center"
+              >
+                <Grid>
+                  <Button variant="contained" type="submit" disabled={isSubmitting} onClick={onSubmit}>
+                    {isSubmitting ? "registering..." : "register"}
+                  </Button>
+                </Grid>
+                <br />
+                <Grid>
+                  <Link to="/login">I already have an account</Link>
+                </Grid>
+              </Grid>
+            </Grid>
+        </form>
+      </Grid>
+    </Grid>
   );
 };

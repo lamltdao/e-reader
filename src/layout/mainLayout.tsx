@@ -10,6 +10,7 @@ export default function mainLayout({ children }: MainLayoutProps) {
             <div>
                 <Navbar />
             </div>
+            <br />
             <div>
                 {children}
             </div>
