@@ -3,7 +3,7 @@ import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc } from 'f
 import { useFirebase } from "./firebase";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage'
 
-type Book = {
+export type Book = {
     id: string;
     name: string;
     length: number;
@@ -12,7 +12,7 @@ type Book = {
     authors: string[];
 };
 
-type OwnedBook = {
+export type OwnedBook = {
     readStatus: boolean[];
     currentPrice: number;
 }
@@ -36,7 +36,7 @@ const getBookUrl = async (bookId: string) => {
 const BooksProvider = ({ children }: BooksProviderProps) => {
     const [books, setBooks] = useState<(Book & OwnedBook)[]>([])
     const { user } = useFirebase()
-    useEffect(() => {        
+    useEffect(() => {
         if (user) {
             const ownedBooksCollection = collection(getFirestore(), "users", user.uid, "owned_books");
             const newBooks: (Book & OwnedBook)[] = []
@@ -110,6 +110,7 @@ const useBooks = () => {
 const useBook = (bookId: string | undefined) => {
     const { user } = useFirebase()
     const [book, setBook] = useState<Book & OwnedBook | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     const updateReadStatus = (pageIdx: number) => {
         setBook((prev) => {
@@ -171,19 +172,21 @@ const useBook = (bookId: string | undefined) => {
                                     book.readStatus = ownedBooks.readStatus
                                     book.currentPrice = ownedBooks.currentPrice
                                     setBook(book)
+                                    setIsLoading(false)
                                 })
                         }
                     })
                 }
             })
     }, [bookId, user?.uid])
-    return { book, updateReadStatus }
+    return { book, updateReadStatus, isLoading }
 }
 
 const useExplore = () => {
     const { user } = useFirebase()
-    const [ownedBookIds, setOwnedBookIds] = useState<String[]>([])
     const [exploreBooks, setExploreBooks] = useState<Book[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
     useEffect(() => {
         if (user && user.uid) {
             const ownedBooksCollection = collection(
@@ -195,46 +198,55 @@ const useExplore = () => {
             getDocs(query(ownedBooksCollection))
             .then((docs) => {
                 const ids = docs.docs.map(d => d.id)
-                setOwnedBookIds(ids)
+                const booksCollection = collection(getFirestore(), "books")
+                const exploreList: Book[] = []
+                getDocs(query(booksCollection))
+                    .then(bookDocuments => {                
+                        Promise.all(
+                            bookDocuments.docs.map(async (doc) => {
+                                const id = doc.id
+                                if (!ids.includes(id)) {
+                                    const { name, length, unitPrice, authors } = doc.data() as {
+                                        name: string;
+                                        length: number;
+                                        unitPrice: number;
+                                        authors: string[];
+                                    }
+                                    const url = await getBookUrl(id)
+                                    const book: Book = {
+                                        id,
+                                        name,
+                                        length,
+                                        url,
+                                        unitPrice,
+                                        authors,
+                                    }
+                                    exploreList.push(book)
+                                }
+                            })
+                        )
+                        .then(() => {
+                            setExploreBooks(exploreList)
+                            setIsLoading(false)
+                        })
+                    })
             })
         }
     }, [user])
-    useEffect(() => {
-        const booksCollection = collection(getFirestore(), "books")
-        const exploreList: Book[] = []
-        getDocs(query(booksCollection))
-            .then(bookDocuments => {
-                Promise.all(
-                    bookDocuments.docs.map(async (doc) => {
-                        const id = doc.id
-                        if (!ownedBookIds.includes(id)) {
-                            const { name, length, unitPrice, authors } = doc.data() as {
-                                name: string;
-                                length: number;
-                                unitPrice: number;
-                                authors: string[];
-                            }
-                            const url = await getBookUrl(id)
-                            const book: Book = {
-                                id,
-                                name,
-                                length,
-                                url,
-                                unitPrice,
-                                authors,
-                            }
-                            exploreList.push(book)
-                        }
-                    })
-                )
-                .then(() => {
-                    setExploreBooks(exploreList)
-                })
-            })
-    }, [ownedBookIds])
     return {
-        exploreBooks
+        exploreBooks, isLoading
     }
 }
 
-export { BooksProvider, useBooks, useBook, useExplore };
+const addBookToList = async (userId: string, bookId: string, bookLength: number) => {    
+    if (userId && bookId) {
+        const ownedBooksCollection = collection(getFirestore(), "users", userId, "owned_books");
+        const readStatus = new Array(bookLength).fill(false)
+        return await setDoc(doc(ownedBooksCollection, bookId), {
+            readStatus,
+            currentPrice: 0,
+        })
+    }
+}
+
+export { BooksProvider, useBooks, useBook, useExplore, addBookToList };

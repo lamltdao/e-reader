@@ -1,4 +1,5 @@
 import React from 'react'
+import Footer from '../pages/Home/components/footer';
 import Navbar from '../pages/Home/components/navbar'
 
 type MainLayoutProps = {
@@ -14,6 +15,9 @@ export default function mainLayout({ children }: MainLayoutProps) {
             <div>
                 {children}
             </div>
+            {/* <div>
+                <Footer />
+            </div> */}
         </div>
     )
 }

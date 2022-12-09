@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthentication } from "../../context/authentication";
 
+
 export const Login = () => {
   const navigate = useNavigate();
   const { doLogin } = useAuthentication();
@@ -60,6 +61,7 @@ export const Login = () => {
                   name="email"
                   value={formValues.email}
                   onChange={handleChange}
+                  size={50}
                 />
               </Grid>
               <br />
@@ -72,6 +74,7 @@ export const Login = () => {
                   name="password"
                   value={formValues.password}
                   onChange={handleChange}
+                  size={50}
                 />
               </Grid>
               <br />

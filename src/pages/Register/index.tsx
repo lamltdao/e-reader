@@ -60,6 +60,7 @@ export const Register = () => {
                   name="email"
                   value={formValues.email}
                   onChange={handleChange}
+                  size={50}
                 />
               </Grid>
               <br />
@@ -72,6 +73,7 @@ export const Register = () => {
                   name="password"
                   value={formValues.password}
                   onChange={handleChange}
+                  size={50}
                 />
               </Grid>
               <br />

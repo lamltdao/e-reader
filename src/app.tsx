@@ -6,6 +6,7 @@ import { useAuthentication } from "./context/authentication";
 import BookDetail from "./pages/BookDetail";
 import Explore from "./pages/Explore";
 
+
 export const App = () => {
   const { isFetchingUser, isLogged } = useAuthentication();
 
